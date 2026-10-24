@@ -159,7 +159,7 @@ function Workspace() {
     rec.start();
   };
 
-  const firstName = (user?.user_metadata?.full_name as string) || user?.email?.split("@")[0] || "Moi";
+  const firstName = (user?.user_metadata?.["full_name"] as string) || user?.email?.split("@")[0] || "Moi";
 
   if (!project) {
     return (
