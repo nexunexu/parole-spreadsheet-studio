@@ -54,7 +54,7 @@ function Dashboard() {
     setProjects((p) => p.filter((x) => x.id !== id));
   };
 
-  const firstName = (user?.user_metadata?.full_name as string) || user?.email?.split("@")[0] || "";
+  const firstName = (user?.user_metadata?.["full_name"] as string) || user?.email?.split("@")[0] || "";
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8">
