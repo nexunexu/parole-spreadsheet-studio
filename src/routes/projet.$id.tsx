@@ -11,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { runCalculation } from "@/lib/ai.functions";
 import type { HistoryEntry, SheetResult } from "@/lib/sheet-types";
-import { Donut, LineChart } from "@/components/Charts";
+import { Donut, LineChart, UniversalChart } from "@/components/Charts";
 
 export const Route = createFileRoute("/projet/$id")({
   head: () => ({
@@ -121,6 +121,41 @@ function Workspace() {
     toast.success(`Données jointes : ${f.name}`);
   };
 
+  const saveResult = (next: SheetResult, persist = false) => {
+    if (!project) return;
+    const history = [...project.history];
+    const idx = project.current_index >= 0 ? project.current_index : 0;
+    if (history.length === 0) history.push({ prompt: "Tableau manuel", result: next, at: new Date().toISOString() });
+    else history[idx] = { ...history[idx], result: next };
+    const p2 = { ...project, history, current_index: idx };
+    setProject(p2);
+    if (persist) void supabase.from("projects").update({ history: history as never, current_index: idx }).eq("id", project.id);
+  };
+  const blankSheet = (): SheetResult => ({
+    title: project?.name ?? "Feuille", summary: "", formula: "", naturalFormula: "",
+    columns: ["A", "B", "C"].map((l) => ({ label: l, align: "left" as const, kind: "text" as const })),
+    rows: Array.from({ length: 5 }, () => ["", "", ""]), steps: [], insights: [], suggestions: [], donut: null, line: null, charts: [],
+  });
+  const editCell = (ri: number, ci: number, v: string) => {
+    if (!r) return;
+    saveResult({ ...r, rows: r.rows.map((row, i) => (i === ri ? row.map((c, j) => (j === ci ? v : c)) : row)) });
+  };
+  const editHeader = (ci: number, v: string) => {
+    if (!r) return;
+    saveResult({ ...r, columns: r.columns.map((c, j) => (j === ci ? { ...c, label: v } : c)) });
+  };
+  const addRow = () => r && saveResult({ ...r, rows: [...r.rows, r.columns.map(() => "")] }, true);
+  const addCol = () => r && saveResult({
+    ...r,
+    columns: [...r.columns, { label: `Colonne ${r.columns.length + 1}`, align: "left", kind: "text" }],
+    rows: r.rows.map((row) => [...row, ""]),
+  }, true);
+  const delRow = (ri: number) => r && saveResult({ ...r, rows: r.rows.filter((_, i) => i !== ri) }, true);
+  const delCol = (ci: number) => r && r.columns.length > 1 && saveResult({
+    ...r, columns: r.columns.filter((_, j) => j !== ci), rows: r.rows.map((row) => row.filter((_, j) => j !== ci)),
+  }, true);
+  const persist = () => r && saveResult(r, true);
+
   const newProject = async () => {
     const { data } = await supabase.from("projects").insert({ name: "Nouveau projet" }).select("id").single();
     if (data) {
@@ -175,7 +210,7 @@ function Workspace() {
     { icon: Plus, label: "Nouveau", onClick: newProject, round: true },
     { icon: Sparkles, label: "Assistant", onClick: () => taRef.current?.focus(), active: true },
     { icon: FileText, label: "Feuilles", onClick: () => navigate({ to: "/dashboard" }) },
-    { icon: Table2, label: "Tableaux", onClick: () => r && setFull("table") },
+    { icon: Table2, label: "Tableaux", onClick: () => (r ? setFull("table") : saveResult(blankSheet(), true)) },
     { icon: Workflow, label: "Automatisations", onClick: () => r?.suggestions[2] && submit(r.suggestions[2]) },
     { icon: Clock, label: "Historique", onClick: () => setShowHistory(true) },
   ];
@@ -187,28 +222,56 @@ function Workspace() {
           <tr className="text-muted-foreground">
             <th className="w-8 border-b border-border px-2 py-2 text-left font-normal">#</th>
             {r.columns.map((c, i) => (
-              <th key={i} className={`border-b border-border px-3 py-2 font-medium ${c.align === "right" ? "text-right" : "text-left"}`}>{c.label}</th>
+              <th key={i} className="group border-b border-border px-1 py-1 font-medium">
+                <div className="flex items-center gap-1">
+                  <input
+                    aria-label={`Nom de la colonne ${i + 1}`}
+                    value={c.label}
+                    onChange={(e) => editHeader(i, e.target.value)}
+                    onBlur={persist}
+                    className={`w-full min-w-16 rounded bg-transparent px-2 py-1 outline-none focus:bg-accent/60 ${c.align === "right" ? "text-right" : ""}`}
+                  />
+                  <button onClick={() => delCol(i)} title="Supprimer la colonne" className="opacity-0 transition group-hover:opacity-100 hover:text-destructive">×</button>
+                </div>
+              </th>
             ))}
+            <th className="w-10 border-b border-border px-1">
+              <button onClick={addCol} title="Ajouter une colonne" className="rounded px-2 py-1 text-primary hover:bg-accent/60">+</button>
+            </th>
           </tr>
         </thead>
         <tbody>
           {r.rows.map((row, ri) => (
-            <tr key={ri} className="transition-colors hover:bg-accent/40 animate-fade-up" style={{ animationDelay: `${Math.min(ri, 20) * 25}ms` }}>
-              <td className="border-b border-border/50 px-2 py-1.5 text-muted-foreground">{ri + 1}</td>
-              {row.map((cell, ci) => {
-                const col = r.columns[ci];
+            <tr key={ri} className="group transition-colors hover:bg-accent/40">
+              <td className="border-b border-border/50 px-2 py-1 text-muted-foreground">
+                <button onClick={() => delRow(ri)} title="Supprimer la ligne" className="group-hover:hidden">{ri + 1}</button>
+                <button onClick={() => delRow(ri)} title="Supprimer la ligne" className="hidden text-destructive group-hover:inline">×</button>
+              </td>
+              {r.columns.map((col, ci) => {
+                const cell = row[ci] ?? "";
                 const pos = col?.kind === "percent" && cell.trim().startsWith("+");
                 const neg = col?.kind === "percent" && /^[-−]\s?\d/.test(cell.trim());
                 return (
-                  <td key={ci} className={`border-b border-border/50 px-3 py-1.5 tabular-nums ${col?.align === "right" ? "text-right" : ""} ${pos ? "text-success" : neg ? "text-destructive" : ""}`}>
-                    {cell}
+                  <td key={ci} className="border-b border-border/50 p-0">
+                    <input
+                      aria-label={`Cellule ligne ${ri + 1} colonne ${ci + 1}`}
+                      value={cell}
+                      onChange={(e) => editCell(ri, ci, e.target.value)}
+                      onBlur={persist}
+                      className={`w-full min-w-16 bg-transparent px-3 py-1.5 tabular-nums outline-none focus:bg-accent/60 focus:ring-1 focus:ring-primary ${col?.align === "right" ? "text-right" : ""} ${pos ? "text-success" : neg ? "text-destructive" : ""}`}
+                    />
                   </td>
                 );
               })}
+              <td className="border-b border-border/50" />
             </tr>
           ))}
         </tbody>
       </table>
+      <div className="flex gap-2 p-2">
+        <button onClick={addRow} className="rounded-md px-3 py-1.5 text-xs text-primary hover:bg-accent/60">+ Ajouter une ligne</button>
+        <button onClick={addCol} className="rounded-md px-3 py-1.5 text-xs text-primary hover:bg-accent/60">+ Ajouter une colonne</button>
+      </div>
     </div>
   );
 
@@ -226,6 +289,11 @@ function Workspace() {
           <LineChart data={r.line} />
         </div>
       )}
+      {(r.charts ?? []).map((c, i) => (
+        <div key={`${entry?.at}-${i}`} className="panel p-4">
+          <UniversalChart spec={c} />
+        </div>
+      ))}
     </div>
   );
 
