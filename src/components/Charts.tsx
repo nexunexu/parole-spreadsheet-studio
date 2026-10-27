@@ -210,7 +210,7 @@ function ChartBody({ spec }: { spec: ChartSpec }) {
   }
 
   const xAt = (i: number) => spec.type === "scatter"
-    ? P + ((xs[i] - Math.min(...xs)) / ((Math.max(...xs) - Math.min(...xs)) || 1)) * innerW
+    ? P + (((xs[i] ?? 0) - Math.min(...xs)) / ((Math.max(...xs) - Math.min(...xs)) || 1)) * innerW
     : P + (i + 0.5) * (innerW / n);
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="h-48 w-full">

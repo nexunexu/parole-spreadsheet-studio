@@ -109,7 +109,7 @@ function Workspace() {
   const setIndex = async (i: number) => {
     if (!project || i < 0 || i >= project.history.length) return;
     setProject({ ...project, current_index: i });
-    setPrompt(project.history[i].prompt);
+    setPrompt(project.history[i]?.prompt ?? "");
     await supabase.from("projects").update({ current_index: i }).eq("id", project.id);
   };
 
@@ -126,7 +126,7 @@ function Workspace() {
     const history = [...project.history];
     const idx = project.current_index >= 0 ? project.current_index : 0;
     if (history.length === 0) history.push({ prompt: "Tableau manuel", result: next, at: new Date().toISOString() });
-    else history[idx] = { ...history[idx], result: next };
+    else history[idx] = { ...(history[idx] as HistoryEntry), result: next };
     const p2 = { ...project, history, current_index: idx };
     setProject(p2);
     if (persist) void supabase.from("projects").update({ history: history as never, current_index: idx }).eq("id", project.id);
@@ -185,7 +185,10 @@ function Workspace() {
   const voice = () => {
     const SR = (window as unknown as { SpeechRecognition?: new () => SpeechRec; webkitSpeechRecognition?: new () => SpeechRec })
       .SpeechRecognition ?? (window as unknown as { webkitSpeechRecognition?: new () => SpeechRec }).webkitSpeechRecognition;
-    if (!SR) return toast.error("Dictée vocale non supportée par ce navigateur");
+    if (!SR) {
+      toast.error("Dictée vocale non supportée par ce navigateur");
+      return;
+    }
     const rec = new SR();
     rec.lang = "fr-FR";
     rec.onresult = (e) => setPrompt((p) => (p ? p + " " : "") + e.results[0][0].transcript);
