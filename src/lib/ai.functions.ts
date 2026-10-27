@@ -43,9 +43,7 @@ export const runCalculation = createServerFn({ method: "POST" })
     const history = all.slice(0, project.current_index + 1);
     const last = history[history.length - 1];
 
-    const messages: { role: "system" | "user" | "assistant"; content: string }[] = [
-      { role: "system", content: SYSTEM },
-    ];
+    const messages: { role: "user" | "assistant"; content: string }[] = [];
     if (project.data_text)
       messages.push({ role: "user", content: `Données jointes (CSV/texte):\n${project.data_text.slice(0, 30000)}` });
     for (const h of history.slice(-4, -1)) messages.push({ role: "user", content: h.prompt });
