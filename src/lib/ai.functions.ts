@@ -11,7 +11,8 @@ Tu analyses la demande, tu exécutes réellement le calcul et tu renvoies le ré
 - Les nombres dans "rows" sont formatés à la française (espaces pour milliers, virgule décimale, ex "1 234 567", "+9,01%", "—").
 - Donne aussi la formule Excel française équivalente (SOMME.SI.ENS, SI, RECHERCHEX...), multi-ligne indentée.
 Réponds UNIQUEMENT avec un objet JSON valide, sans markdown, de cette forme exacte:
-{"title":"Nom_De_Fichier_Court","summary":"phrase","formula":"...","naturalFormula":"explication en français","columns":[{"label":"...","align":"left|right","kind":"text|number|percent"}],"rows":[["..."]],"steps":[{"title":"Compréhension du besoin","detail":"..."},{"title":"Détection des règles","detail":"..."},{"title":"Sélection des données","detail":"..."},{"title":"Construction du calcul","detail":"..."},{"title":"Vérification & optimisation","detail":"..."}],"insights":[{"icon":"crown|growth|tag|alert|info","text":"..."}],"suggestions":["3 prochaines étapes courtes"],"donut":{"title":"...","totalLabel":"7,66 M€","items":[{"label":"...","value":123}]} ou null,"line":{"title":"...","xLabels":["..."],"series":[{"name":"...","values":[1]}]} ou null}
+{"title":"Nom_De_Fichier_Court","summary":"phrase","formula":"...","naturalFormula":"explication en français","columns":[{"label":"...","align":"left|right","kind":"text|number|percent"}],"rows":[["..."]],"steps":[{"title":"Compréhension du besoin","detail":"..."},{"title":"Détection des règles","detail":"..."},{"title":"Sélection des données","detail":"..."},{"title":"Construction du calcul","detail":"..."},{"title":"Vérification & optimisation","detail":"..."}],"insights":[{"icon":"crown|growth|tag|alert|info","text":"..."}],"suggestions":["3 prochaines étapes courtes"],"donut":{"title":"...","totalLabel":"7,66 M€","items":[{"label":"...","value":123}]} ou null,"line":null,"charts":[{"type":"bar|hbar|stacked|line|area|pie|donut|scatter|radar","title":"...","labels":["catégories ou axe X"],"series":[{"name":"...","values":[1]}]}]}
+Pour "charts": choisis le ou les types de graphiques les plus adaptés (1 à 3), ou EXACTEMENT celui demandé par l'utilisateur (barres, histogramme, barres horizontales, empilé, courbe, aire, camembert, anneau, nuage de points, radar...). Pour pie/donut une seule série. Pour scatter, labels = valeurs X numériques en texte. Mets "donut" et "line" à null.
 Exactement 3 insights et 3 suggestions. Maximum 200 lignes.`;
 
 function parseJson(text: string): SheetResult {
@@ -24,6 +25,7 @@ function parseJson(text: string): SheetResult {
   r.steps ??= [];
   r.insights = (r.insights ?? []).slice(0, 3);
   r.suggestions = (r.suggestions ?? []).slice(0, 3);
+  r.charts = (r.charts ?? []).filter((c) => c && Array.isArray(c.series)).slice(0, 6);
   return r;
 }
 
@@ -66,6 +68,7 @@ export const runCalculation = createServerFn({ method: "POST" })
     try {
       const result = streamText({
         model: provider.responses("openai/gpt-6-luna") as never,
+        system: SYSTEM,
         messages,
         maxRetries: 0,
         providerOptions: {
