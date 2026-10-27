@@ -96,7 +96,7 @@ export const runCalculation = createServerFn({ method: "POST" })
       current_index: newHistory.length - 1,
       updated_at: new Date().toISOString(),
     };
-    if (all.length === 0 && (project as { name: string })["name"] === "Nouveau projet") update.name = parsed.title;
+    if (all.length === 0 && String((project as Record<string, unknown>)["name"]) === "Nouveau projet") update.name = parsed.title;
     const { error: upErr } = await supabase.from("projects").update(update as never).eq("id", data.projectId);
     if (upErr) throw new Error(upErr.message);
     return entry;
