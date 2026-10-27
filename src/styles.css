@@ -48,45 +48,50 @@
 }
 
 :root {
-  --radius: 0.75rem;
-  --background: oklch(0.155 0.035 272);
-  --foreground: oklch(0.96 0.01 270);
-  --panel: oklch(0.2 0.05 272 / 0.82);
-  --panel-2: oklch(0.235 0.06 272 / 0.75);
-  --card: oklch(0.2 0.05 272);
-  --card-foreground: oklch(0.96 0.01 270);
-  --popover: oklch(0.21 0.05 272);
-  --popover-foreground: oklch(0.96 0.01 270);
-  --primary: oklch(0.6 0.22 280);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.26 0.055 272);
-  --secondary-foreground: oklch(0.92 0.02 270);
-  --muted: oklch(0.25 0.05 272);
-  --muted-foreground: oklch(0.7 0.04 270);
-  --accent: oklch(0.3 0.08 275);
-  --accent-foreground: oklch(0.97 0.01 270);
-  --destructive: oklch(0.64 0.21 22);
-  --destructive-foreground: oklch(0.99 0 0);
-  --success: oklch(0.76 0.2 148);
-  --warning: oklch(0.78 0.16 70);
-  --border: oklch(0.42 0.1 275 / 0.35);
-  --input: oklch(0.35 0.08 275 / 0.5);
-  --ring: oklch(0.62 0.2 278);
-  --violet: oklch(0.6 0.24 292);
-  --azure: oklch(0.66 0.19 255);
-  --magenta: oklch(0.62 0.27 322);
-  --formula-key: oklch(0.86 0.17 95);
-  --formula-ref: oklch(0.72 0.15 255);
-  --chart-1: oklch(0.62 0.21 262);
-  --chart-2: oklch(0.6 0.27 312);
-  --chart-3: oklch(0.72 0.18 55);
-  --chart-4: oklch(0.8 0.16 85);
-  --chart-5: oklch(0.72 0.15 175);
-  --gradient-primary: linear-gradient(135deg, oklch(0.58 0.23 292), oklch(0.6 0.2 258));
-  --gradient-logo: linear-gradient(140deg, oklch(0.58 0.26 312), oklch(0.6 0.2 255));
-  --gradient-prompt: linear-gradient(160deg, oklch(0.32 0.14 290 / 0.65), oklch(0.24 0.1 270 / 0.55));
-  --glow-panel: 0 0 0 1px oklch(0.55 0.18 275 / 0.35), 0 0 24px -6px oklch(0.55 0.22 280 / 0.45);
-  --glow-primary: 0 0 26px -4px oklch(0.6 0.25 285 / 0.75);
+  /* Bento Premium — palette: #001952 #043775 #12769E #FCF6F3 */
+  --navy: #001952;
+  --deep: #043775;
+  --teal: #12769E;
+  --cream: #FCF6F3;
+  --radius: 1rem;
+  --background: var(--cream);
+  --foreground: #0a1f4a;
+  --panel: rgb(255 255 255 / 0.62);
+  --panel-2: rgb(255 255 255 / 0.45);
+  --card: rgb(255 255 255 / 0.75);
+  --card-foreground: #0a1f4a;
+  --popover: #ffffff;
+  --popover-foreground: #0a1f4a;
+  --primary: var(--deep);
+  --primary-foreground: #ffffff;
+  --secondary: rgb(4 55 117 / 0.06);
+  --secondary-foreground: var(--deep);
+  --muted: rgb(4 55 117 / 0.05);
+  --muted-foreground: #5a6b8c;
+  --accent: rgb(18 118 158 / 0.12);
+  --accent-foreground: var(--navy);
+  --destructive: oklch(0.62 0.2 22);
+  --destructive-foreground: #ffffff;
+  --success: oklch(0.62 0.15 160);
+  --warning: oklch(0.72 0.15 70);
+  --border: rgb(4 55 117 / 0.1);
+  --input: rgb(4 55 117 / 0.14);
+  --ring: var(--teal);
+  --violet: #6a5cff;
+  --azure: var(--teal);
+  --magenta: #c45bd8;
+  --formula-key: #b7791f;
+  --formula-ref: var(--teal);
+  --chart-1: var(--deep);
+  --chart-2: var(--teal);
+  --chart-3: #3fb6d9;
+  --chart-4: var(--navy);
+  --chart-5: #8fd3e8;
+  --gradient-primary: linear-gradient(135deg, var(--navy), var(--deep) 50%, var(--teal));
+  --gradient-logo: linear-gradient(140deg, var(--navy), var(--teal) 70%, #7fd6f0);
+  --gradient-prompt: linear-gradient(150deg, rgb(18 118 158 / 0.12), rgb(255 255 255 / 0.7) 45%, rgb(196 91 216 / 0.1) 75%, rgb(4 55 117 / 0.1));
+  --glow-panel: 0 0 0 1px rgb(255 255 255 / 0.7) inset, 0 1px 0 rgb(4 55 117 / 0.06), 0 12px 36px -12px rgb(0 25 82 / 0.18);
+  --glow-primary: 0 8px 26px -6px rgb(18 118 158 / 0.55);
 }
 
 @layer base {
@@ -95,37 +100,54 @@
   }
   body {
     background:
-      radial-gradient(1200px 600px at 15% -10%, oklch(0.3 0.12 290 / 0.35), transparent 60%),
-      radial-gradient(900px 500px at 100% 0%, oklch(0.3 0.12 250 / 0.3), transparent 60%),
+      radial-gradient(900px 520px at 8% -10%, rgb(18 118 158 / 0.16), transparent 60%),
+      radial-gradient(800px 500px at 100% 0%, rgb(196 91 216 / 0.1), transparent 60%),
+      radial-gradient(900px 600px at 60% 110%, rgb(4 55 117 / 0.1), transparent 60%),
       var(--color-background);
+    background-attachment: fixed;
     color: var(--color-foreground);
     font-family: var(--font-sans);
     min-height: 100vh;
   }
   ::-webkit-scrollbar { width: 8px; height: 8px; }
-  ::-webkit-scrollbar-thumb { background: oklch(0.4 0.08 275 / 0.5); border-radius: 8px; }
+  ::-webkit-scrollbar-thumb { background: rgb(4 55 117 / 0.18); border-radius: 8px; }
 }
 
 @utility panel {
   background: var(--panel);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-2xl);
+  border: 1px solid rgb(255 255 255 / 0.8);
   box-shadow: var(--glow-panel);
-  backdrop-filter: blur(14px);
+  backdrop-filter: blur(20px) saturate(160%);
 }
 @utility panel-inner {
-  background: oklch(0.17 0.04 272 / 0.7);
-  border: 1px solid oklch(0.42 0.1 275 / 0.25);
+  background: rgb(255 255 255 / 0.7);
+  border: 1px solid rgb(4 55 117 / 0.08);
   border-radius: var(--radius-lg);
 }
 @utility bg-gradient-primary { background: var(--gradient-primary); }
 @utility bg-gradient-logo { background: var(--gradient-logo); }
 @utility bg-gradient-prompt { background: var(--gradient-prompt); }
 @utility shadow-glow { box-shadow: var(--glow-primary); }
+@utility holo-border {
+  position: relative;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(120deg, var(--teal), #c45bd8, #7fd6f0, var(--deep));
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
 
 @keyframes fade-up { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 @keyframes draw { from { stroke-dashoffset: 1000; } to { stroke-dashoffset: 0; } }
-@keyframes pulse-glow { 0%,100% { box-shadow: var(--glow-primary); } 50% { box-shadow: 0 0 36px -2px oklch(0.6 0.25 285 / 0.95); } }
+@keyframes pulse-glow { 0%,100% { box-shadow: var(--glow-primary); } 50% { box-shadow: 0 10px 36px -4px rgb(18 118 158 / 0.75); } }
 
 @utility animate-fade-up { animation: fade-up 0.45s ease-out both; }
 @utility animate-draw { stroke-dasharray: 1000; animation: draw 1.4s ease-out both; }
